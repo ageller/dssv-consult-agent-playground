@@ -1,5 +1,7 @@
-# data
- consult_data/*
+# data — contains real PII (names, emails, NetIDs); never commit.
+# Covers the source .xlsx and the generated consult.db (both live here).
+consult_data/
+*.db
 
 
 

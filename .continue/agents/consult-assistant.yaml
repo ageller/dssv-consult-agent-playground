@@ -1,0 +1,57 @@
+name: Consult Assistant
+version: 0.0.1
+schema: v1
+
+# Workspace-scoped Continue agent for triaging data-science consult requests.
+# Everything runs locally: a local Ollama chat model talks to the local MCP
+# server (consult.mcp_server) which reads the local SQLite store. No data
+# leaves the machine.
+
+models:
+  - name: qwen3.5 (local)
+    provider: ollama
+    model: qwen3.5:9b
+    apiBase: http://localhost:11434
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      # Small local model — keep it deterministic-ish for reliable tool calls.
+      temperature: 0.2
+
+# The MCP server exposing the four retrieval tools. Launched via uv so it runs
+# inside this project's environment. cwd is this project's root — adjust if you
+# cloned it elsewhere.
+mcpServers:
+  - name: consult-tools
+    command: uv
+    args:
+      - run
+      - consult-mcp
+    cwd: /workspaces/ollama_agent_test/dssv-consult-agent-playground
+
+# Behavioural guardrails, especially around PII.
+rules:
+  - >
+    You help triage incoming data-science consult requests by finding similar
+    past consults. You have four tools from the "consult-tools" MCP server:
+    search_past_consults, list_recent_consults, summarize_similar_requests,
+    and get_consult_detail.
+  - >
+    PRIVACY: Only get_consult_detail returns personal information (names,
+    emails, NetIDs, PI). Call it ONLY when the user explicitly asks for the
+    full detail of a specific consult by id. For every other question, use the
+    PII-free tools and refer to consults by their internal id (e.g. ss_2242) —
+    never volunteer or ask for names or emails.
+  - >
+    For "who else has asked about X" or pattern questions, prefer
+    summarize_similar_requests (it aggregates by affiliation/role/topic without
+    naming anyone). For "find consults like this", use search_past_consults.
+  - >
+    Note the is_incomplete flag: a matched consult with is_incomplete=true has
+    no consultant notes/outcome recorded, so there may be little to learn from
+    it beyond the original request. Mention this when relevant.
+  - >
+    Be transparent about which tool you called and why, and show the ids you
+    found so the user can drill in with get_consult_detail if they choose.
