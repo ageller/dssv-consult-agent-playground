@@ -152,6 +152,25 @@ should ever run `get_consult_details(id)`.
    Do not run these.  I will do that manually.
 8. Stop and review with me before adding anything beyond this.
 
+## Extension to test the Pi harness
+
+I want to set up Pi (https://pi.dev) as a second harness for testing the CLI/Bash 
+arm of the tool-calling comparison described in CLAUDE.md (step 5). Please:
+
+1. Install Pi: `curl -fsSL https://pi.dev/install.sh | sh`, then verify it's on PATH.
+2. Write an `AGENTS.md` at the project root. Pi loads this automatically from the 
+   current directory at startup, so it should document the CLI scripts we already built in step 3a, 
+   one section per script, each with usage syntax and a short description, in the same style as the 
+   README we already wrote for those scripts. Reuse that README's content rather than rewriting it 
+   from scratch — I want the two to stay in sync.
+3. Configure Pi to use Ollama as the provider, defaulting to `qwen3.5:9b`, matching what's already 
+   set up in `.continue/agents/consult-assistant.yaml`. Point it at my local Ollama instance. Add 
+   whatever config file Pi needs for this (check its docs for the provider/model config format — 
+   I believe it's `models.json` or similar) rather than guessing at the syntax.
+4. Give me 5-6 test queries in plain language (not the CLI syntax) that mirror the requests you already provided.
+   (These are currently in the `README.md` file in the project root). Don't run these queries yourself. I will run 
+   them interactively in Pi's TUI and report back what happened, the same way I tested the Continue/MCP side.
+
 
 ## Working Conventions
 

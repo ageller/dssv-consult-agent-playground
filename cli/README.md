@@ -1,7 +1,7 @@
 # Consult tools — CLI (the "skip MCP" arm)
 
 Four small command-line scripts for triaging consult requests against past
-consults. They are **thin wrappers** around the same `consult.retrieval`
+consults. They are **thin wrappers** around the same `consult_agent.retrieval`
 functions the MCP server uses, so results are identical between the two —
 only the calling convention differs. This is the "read a README, invoke plain
 scripts via Bash" alternative to structured MCP tool-calling (see the project
