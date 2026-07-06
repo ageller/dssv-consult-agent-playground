@@ -129,12 +129,11 @@ Pi is capable precisely because it is unconstrained, so two guardrails matter:
   Its built-in tools (`read`, `write`, `edit`, and especially `bash`) run with
   the **full permissions of the user account that launched Pi** — as if you had
   typed the commands into your own shell. Pi is *not* confined to the project
-  directory and can read, write, or execute anything that user can. (That is
-  what "running in YOLO mode" loosely means; stated precisely: **no isolation
-  layer and no confirmation prompts on tool calls**.) Pi's "project trust"
-  prompt — `defaultProjectTrust`, default `"ask"` — only governs whether Pi
-  loads project-local settings/extensions at startup; it does **not** limit what
-  the tools may do once a session is running.
+  directory and can read, write, or execute anything that user can. Stated 
+  precisely: **no isolation layer and no confirmation prompts on tool calls** 
+  ("YOLO" mode, dude.) Pi's "project trust" prompt — `defaultProjectTrust`, 
+  default `"ask"` — only governs whether Pi loads project-local settings/extensions 
+  at startup; it does **not** limit what the tools may do once a session is running.
 
 - **Confirm Pi's working directory is scoped to the project, nothing broader.**
   Because Pi operates relative to (but is not confined to) its current
@@ -153,8 +152,7 @@ Pi is capable precisely because it is unconstrained, so two guardrails matter:
 
 - **Use OS-level isolation for anything untrusted or unattended.** For untrusted
   input or unmonitored runs, run Pi inside a container/VM with only this
-  workspace mounted (this repo already lives in a dev container / WSL, a
-  reasonable boundary). See Pi's own `docs/security.md` and
+  workspace mounted. See Pi's own `docs/security.md` and
   `docs/containerization.md`.
 
 - **Stay offline-clean.** Everything here is local. No consult data is ever sent
