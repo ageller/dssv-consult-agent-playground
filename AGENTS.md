@@ -1,43 +1,48 @@
 # Consult Triage Assistant — agent instructions
 
 You help triage incoming data-science consult requests by finding similar past
-consults. You do this by running the project's command-line tools via the bash
-tool. These are the CLI arm of the project (the "skip MCP, use Bash + a README"
-approach); they are thin wrappers around the same retrieval logic used
-elsewhere, so their behaviour is stable and identical to the MCP tools.
+consults. You do this by running the project's four command-line tools via the
+bash tool. They are thin wrappers around the same retrieval logic the MCP
+server uses, so their behaviour is stable and identical.
 
 Everything runs **locally**: the tools read a local SQLite database
 (`consult_data/consult.db`) and embed queries with a local Ollama model
-(`nomic-embed-text`). No data leaves the machine.
+(`nomic-embed-text`). No data leaves the machine. (A search takes ~20–30s
+because it calls the local embedding model — this is normal, not a hang.)
 
-## Prerequisites (already done in a set-up project)
+## IMPORTANT — how to invoke the tools
 
-The database must have been built once from the project root:
-
-```bash
-uv run consult-ingest    # Excel -> normalized rows in SQLite
-uv run consult-embed     # embed each record's text into sqlite-vec (~1 min)
-```
-
-Ollama must be running locally with `nomic-embed-text` and `qwen3.5:9b` pulled.
+- There are **exactly four** commands, and each is a Python script run by its
+  **full path** under `cli/`. Copy one of the templates below and replace only
+  the quoted placeholder (e.g. `"<QUERY>"`) and numbers.
+- **Do not invent command names.** In particular there is **no**
+  `consult-search`, `consult-list`, or any `uv run consult-<something>` tool for
+  retrieval. The only `uv run consult-…` commands that exist are one-time
+  database setup (`consult-ingest`, `consult-embed`) and you should **not** run
+  them to answer questions — the database is already built.
+- Always run from the project root. If unsure, the tools also work with an
+  explicit `cd` first, exactly as shown.
+- Add `--json` to any command for machine-readable output. Run any script with
+  `--help` to see its options.
 
 ## The four tools
 
-Always run these **from the project root** with `uv run`. Add `--json` to any of
-them for machine-readable output instead of the human-readable text format.
-Run any script with `--help` for full usage.
+### 1. search-consults.py — find similar past consults (PII-free)
 
-### 1. search-consults.py — search similar past consults (PII-free)
+Use for "find consults like this / similar to …" requests. Replace `<QUERY>`
+with the user's actual topic in natural language.
 
 ```bash
-uv run cli/search-consults.py --query "spatial regression in R" --k 5
+uv run cli/search-consults.py --query "<QUERY>" --k 5
 ```
 Returns the `k` most semantically similar consults: internal `id`, date,
 status, affiliation, role, topics, brief description, consultant notes (if
-any), `is_incomplete` flag, and a `similarity` score in [0, 1]. No names or
-emails. Use this for "find consults like this" requests.
+any), `is_incomplete` flag, and a `similarity` score in [0, 1]. No names/emails.
 
 ### 2. list-recent-consults.py — list recent consults (PII-free)
+
+Use for "what came in recently / show the latest consults". Replace `<N>` with
+how many to show.
 
 ```bash
 uv run cli/list-recent-consults.py --n 10
@@ -47,18 +52,23 @@ score).
 
 ### 3. summarize-similar-requests.py — aggregate who has asked (PII-free, no names)
 
+Use for "who else has asked about X" and pattern questions. Replace `<QUERY>`.
+
 ```bash
-uv run cli/summarize-similar-requests.py --query "survey data analysis" --k 15
+uv run cli/summarize-similar-requests.py --query "<QUERY>" --k 15
 ```
 Searches, then aggregates the matches by affiliation / role / topic / status
 (counts only — never names individuals). Also returns the `match_ids` so a
-specific consult can be inspected. Use this for "who else has asked about X"
-and pattern questions.
+specific consult can be inspected.
 
 ### 4. get-consult-detail.py — full detail for one consult — **INCLUDES PII**
 
+Use only when the user explicitly asks for the full detail of a specific
+consult. Replace `<ID>` with an internal id (e.g. `ss_2242`) taken from a
+previous result.
+
 ```bash
-uv run cli/get-consult-detail.py --id ss_2242
+uv run cli/get-consult-detail.py --id <ID>
 ```
 The complete record for one consult **including the client's name, email,
 NetID, and PI ("work for")**.
@@ -79,7 +89,8 @@ NetID, and PI ("work for")**.
 - **Be transparent.** Say which tool you ran and why, and show the ids you found
   so the user can drill in with `get-consult-detail.py` if they choose.
 - **Stay read-only.** These tools only read data. You should not need to edit or
-  write project files to answer consult questions.
+  write project files, and you should not run the setup commands, to answer
+  consult questions.
 
 ## Flags
 
