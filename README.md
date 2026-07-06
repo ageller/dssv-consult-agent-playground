@@ -187,8 +187,7 @@ consult_data/        source .xlsx + generated consult.db  (gitignored)
 
 ### In Pi (natural language — the model must translate these into `uv run cli/...` calls):
 
-Launch `pi` from the project root, then try the same questions as for Continue (see above)
-y. Comapre Pi's "read-a-README-and-run-Bash" approach with the other methods.
+Launch `pi` from the project root, then try the same questions as for Continue (see above). Compare Pi's "read-a-README-and-run-Bash" approach with the other methods.
 
 
 ### Via CLI:
